@@ -1,0 +1,15 @@
+artifact_uri: file:///C:/Users/sergioa.holguin/Documents/Mariline/library/mlruns/0/f0fcd25c56724d6084bffa3406378586/artifacts
+end_time: 1730175740793
+entry_point_name: ''
+experiment_id: '0'
+lifecycle_stage: active
+run_id: f0fcd25c56724d6084bffa3406378586
+run_name: selective-boar-748
+run_uuid: f0fcd25c56724d6084bffa3406378586
+source_name: ''
+source_type: 4
+source_version: ''
+start_time: 1730174761066
+status: 3
+tags: []
+user_id: sergioa.holguin

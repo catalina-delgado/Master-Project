@@ -18,10 +18,14 @@ from sklearn.metrics import (
 from sklearn.preprocessing import MinMaxScaler, StandardScaler, label_binarize
 from sklearn.model_selection import train_test_split, KFold, StratifiedKFold
 from tensorflow.keras.utils import to_categorical, plot_model
+
 from time import time
 import time as tm
 import datetime
+
 from skimage.util.shape import view_as_blocks
+from contextlib import redirect_stdout
+
 import glob
 import os
 import random
@@ -29,3 +33,6 @@ import ntpath
 import copy
 
 from tfkan.layers import DenseKAN
+
+import mlflow
+from mlflow.tensorflow import MlflowCallback

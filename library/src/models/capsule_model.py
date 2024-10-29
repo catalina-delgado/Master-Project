@@ -5,7 +5,7 @@ class BlocksCapsule(keras.layers.Layer):
     def __init__(self, inputs, weights, bias, learning_rate=None, lr_schedule=0.001, compile=True):
         super(BlocksCapsule, self).__init__()
         self.CNN = cnn.CNN()
-        self.Capsule = capsule.Capsule(num_clases=5, vec=16) 
+        self.Capsule = capsule.Capsule(num_clases=2, vec=16) 
         self.learning_rate = learning_rate
         self.lr_schedule = lr_schedule
         self.compile = compile

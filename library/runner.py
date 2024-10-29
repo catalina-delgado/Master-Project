@@ -3,10 +3,7 @@ import os
 import sys
 import inspect
 
-EPOCHS = 10
-BATCH_SIZE = 32
-
-def run_train_methods():
+def run_train_methods(epochs, batch_size):
 
     train_dir = os.path.join(os.path.dirname(__file__), 'train')
     sys.path.insert(0, train_dir)  
@@ -19,8 +16,8 @@ def run_train_methods():
             
             for name, obj in inspect.getmembers(module, inspect.isclass):
                 if name.startswith("Train"):
-                    print(f"Ejecutando métodos de {name} con epochs={EPOCHS}, batch_size={BATCH_SIZE}")
-                    instance = obj(epochs=EPOCHS, batch_size=BATCH_SIZE) 
+                    print(f"Ejecutando métodos de {name} con epochs={epochs}, batch_size={batch_size}")
+                    instance = obj(epochs=epochs, batch_size=batch_size) 
                     
                     for method_name, method in inspect.getmembers(instance, inspect.ismethod):
                         if "train" in method_name:
@@ -28,4 +25,9 @@ def run_train_methods():
                             method()
 
 if __name__ == "__main__":
-    run_train_methods()
+    import argparse
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--epochs", type=int, default=10)
+    parser.add_argument("--batch_size", type=int, default=32)
+    args = parser.parse_args()
+    run_train_methods(epochs=args.epochs, batch_size=args.batch_size)

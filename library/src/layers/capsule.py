@@ -16,7 +16,7 @@ class Capsule(tf.keras.layers.Layer):
         primary_capsule_output = self.primary_capsule(inputs)
         routing_output = self.routing(primary_capsule_output)
         return routing_output
-    
+
     def primary_capsule(self, inputs):
         u = tf.reshape(inputs, (-1, 1, 512))
         u = tf.expand_dims(u, axis=-2)
@@ -47,7 +47,15 @@ class Capsule(tf.keras.layers.Layer):
     def safe_norm(v, axis=-1, epsilon=1e-7):
         v_ = tf.reduce_sum(tf.square(v), axis=axis, keepdims=True)
         return tf.sqrt(v_ + epsilon)
-    
+
     @staticmethod
     def output_layer(inputs):
         return K.sqrt(K.sum(K.square(inputs), -1) + K.epsilon())
+    
+    def get_config(self):
+        config = super().get_config()
+        config.update({
+            "num_clases": self.num_clases,
+            "vec": self.vec,
+        })
+        return config

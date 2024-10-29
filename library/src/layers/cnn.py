@@ -30,6 +30,8 @@ class CNN():
         return tf.keras.layers.GlobalAveragePooling2D()(input)
 
     def __sDense (self, input, n_units, activate_c):
+        if activate_c == "leakyrelu":
+            activate_c = tf.keras.layers.ReLU(negative_slope=0.1, threshold=0)
         return tf.keras.layers.Dense(n_units,activation=activate_c)(input)
 
     def __smultiply (self, input_1, input_2):
@@ -53,29 +55,25 @@ class CNN():
         return output
         
 
-
     def SE_Block(self, input, out_dim, ratio):
         output = self.__sGlobal_Avg_Pooling(input)
-        output = self.__sDense(output, out_dim/ratio, 'relu')
+        output = self.__sDense(output, out_dim/ratio, 'leakyrelu')
         output = self.__sDense(output, out_dim, 'sigmoid')
         return output
         
-    
     
     def Block_2 (self, input, parameter):
         output = self.Block_1(input, parameter)
         output = self.__sConv(output, parameter, 3, 1)
         output = self.__sBN(output)
         multiplier = self.SE_Block(output,  parameter, parameter)
-        # output = smultiply(output, output)
         output = self.__smultiply(multiplier, output)
         output = self.__sadd(output, input)
         return output
     
-  
 
     def Block_3 (self, input, parameter):
-        addition = self.__sConv(input, parameter, 1, 2)
+        addition = self.__sConv(input, parameter, 3, 2)
         addition = self.__sBN(addition)
         output = self.__sConv(input, parameter, 3, 2)
         output = self.__sBN(output)
@@ -87,13 +85,14 @@ class CNN():
         output = self.__sadd(output, addition)
         return output  
     
+
     def Block_4 (self, input, parameter):
         output = self.Block_1(input, parameter)
         output = self.__sConv(input, parameter, 3, 1)
         output = self.__sBN(output)
-        
         return output    
     
+
     def fully_connected (self, input):
         output = tf.keras.layers.Dense(128,kernel_initializer='glorot_normal',kernel_regularizer=tf.keras.regularizers.l2(0.0001),bias_regularizer=tf.keras.regularizers.l2(0.0001))(input)
         output = tf.keras.layers.ReLU(negative_slope=0.1, threshold=0)(output)
@@ -101,11 +100,12 @@ class CNN():
         output = tf.keras.layers.ReLU(negative_slope=0.1, threshold=0)(output)
         output = tf.keras.layers.Dense(32,kernel_initializer='glorot_normal',kernel_regularizer=tf.keras.regularizers.l2(0.0001),bias_regularizer=tf.keras.regularizers.l2(0.0001))(output)
         output = tf.keras.layers.ReLU(negative_slope=0.1, threshold=0)(output)
-
         return output
+  
   
     def fully_connected_kan (self, input):
         output = DenseKAN(64)(input)
         output = DenseKAN(32)(output)
         output = DenseKAN(16)(output)
         return output
+    
