@@ -1,7 +1,4 @@
-/data_download
-/data_load
-/data_gbras
+/database
 CTGAN.py
 *.xlsx
 *.txt
-main.py
