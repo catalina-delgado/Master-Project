@@ -11,9 +11,9 @@ This project focuses on training deep learning models for image steganalysis usi
 
 ## Usage
 To start training the models, navigate to the library folder in your terminal and run:
-´´´
+```
 python -m runner --epochs 400 --batch_size 8
-´´´
+```
 ## Architectures Included
 The following architectures are available for training in this project:
 
@@ -25,6 +25,6 @@ Each model is trained with the BossBase Bow 0.1 S-UNIWARD 0.4 ppb database. SRM 
 
 ### Monitoring Training with TensorBoard
 After training, you can monitor the training metrics using TensorBoard. Run the following command:
-´´´
+```
 tensorboard --logdir=D:\testing_by_library
-´´´
+```
