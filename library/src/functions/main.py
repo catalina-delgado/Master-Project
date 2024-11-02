@@ -22,17 +22,25 @@ class Main():
         if mlflow.active_run():
             mlflow.end_run()
 
-        with mlflow.start_run(nested=True) as run:
+        with mlflow.start_run(nested=True, run_name=num_test+"/"+model_name+"_"+"{}".format(tm.time())) as run:
+            
+            mlflow.log_param("model_name", model_name)
+            mlflow.tensorflow.log_model(model, model_name)
+            mlflow.keras.log_model(model, model_name)
+
             history=model.fit(X_train, y_train, epochs=epochs, 
                                 callbacks=[tensorboard,  checkpoint, MlflowCallback(run)], 
                                 batch_size=batch_size,
                                 validation_data=(X_valid, y_valid),
                                 initial_epoch=initial_epoch)
-        
+
+            model.load_weights(filepath)
             metrics = model.evaluate(X_test, y_test, verbose=0,  callbacks=[MlflowCallback(run)])
             mlflow.log_metrics({k: v for k, v in zip(model.metrics_names, metrics)})
         
-        
+            max_val_accuracy = max(history.history['val_accuracy'])
+            mlflow.log_metric("max_val_accuracy", max_val_accuracy)
+            
         results_dir="D:/testing_by_"+num_test+"/"+model_name+"/"
         
         if not os.path.exists(results_dir):

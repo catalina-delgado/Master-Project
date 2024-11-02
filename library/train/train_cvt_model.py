@@ -46,14 +46,14 @@ class TrainingCVT(Main):
         self.plot_model_summary(architecture.model, 'cvt_model_summary')
 
         #Train
-        X_train = np.load('../data/data_gbras/X_train.npy') # (12000, 256, 256, 1)
-        y_train = np.load('../data/data_gbras/y_train.npy') # (12000, 2)
+        X_train = np.load('../database/data_gbras/X_train.npy') # (12000, 256, 256, 1)
+        y_train = np.load('../database/data_gbras/y_train.npy') # (12000, 2)
         #Valid
-        X_valid = np.load('../data/data_gbras/X_valid.npy') # (4000, 256, 256, 1)
-        y_valid = np.load('../data/data_gbras/y_valid.npy') # (4000, 2)
+        X_valid = np.load('../database/data_gbras/X_valid.npy') # (4000, 256, 256, 1)
+        y_valid = np.load('../database/data_gbras/y_valid.npy') # (4000, 2)
         #Test
-        X_test = np.load('../data/data_gbras/X_test.npy') # (4000, 256, 256, 1)
-        y_test = np.load('../data/data_gbras/y_test.npy') # (4000, 2)
+        X_test = np.load('../database/data_gbras/X_test.npy') # (4000, 256, 256, 1)
+        y_test = np.load('../database/data_gbras/y_test.npy') # (4000, 2)
 
         base_name="04S-UNIWARD"
         name="Model_"+'CVT_prueba1'+"_"+base_name

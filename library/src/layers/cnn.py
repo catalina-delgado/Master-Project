@@ -57,7 +57,7 @@ class CNN():
 
     def SE_Block(self, input, out_dim, ratio):
         output = self.__sGlobal_Avg_Pooling(input)
-        output = self.__sDense(output, out_dim/ratio, 'leakyrelu')
+        output = self.__sDense(output, out_dim/ratio, 'relu')
         output = self.__sDense(output, out_dim, 'sigmoid')
         return output
         
@@ -73,7 +73,7 @@ class CNN():
     
 
     def Block_3 (self, input, parameter):
-        addition = self.__sConv(input, parameter, 3, 2)
+        addition = self.__sConv(input, parameter, 1, 2)
         addition = self.__sBN(addition)
         output = self.__sConv(input, parameter, 3, 2)
         output = self.__sBN(output)
