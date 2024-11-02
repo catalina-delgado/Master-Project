@@ -1,11 +1,11 @@
 from src.imports import tf, K, keras
-from src.layers import cnn, transformer
+from src.layers import cnn, transformer_keras
 
 class CVT(keras.layers.Layer):
     def __init__(self, inputs, weights, bias, hyperparams, learning_rate=None, lr_schedule=0.001, compile=True):
         super(CVT, self).__init__()
         self.CNN = cnn.CNN()
-        self.transformer = transformer.Transformer(hyperparams)
+        self.transformer = transformer_keras.Transformer(hyperparams)
         self.learning_rate = learning_rate
         self.lr_schedule = lr_schedule
         self.compile = compile
