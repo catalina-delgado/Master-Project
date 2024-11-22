@@ -1,0 +1,15 @@
+artifact_uri: file:///C:/Users/sergioa.holguin/Documents/Mariline/library/mlruns/0/cabdab9ca85e440db9198e32593158e5/artifacts
+end_time: 1730833615925
+entry_point_name: ''
+experiment_id: '0'
+lifecycle_stage: active
+run_id: cabdab9ca85e440db9198e32593158e5
+run_name: library/Model_CVT_prueba2_04S-UNIWARD_1730833614.7352004
+run_uuid: cabdab9ca85e440db9198e32593158e5
+source_name: ''
+source_type: 4
+source_version: ''
+start_time: 1730833615016
+status: 4
+tags: []
+user_id: sergioa.holguin

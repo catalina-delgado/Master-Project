@@ -1,0 +1,20 @@
+artifact_path: Model_CAPSNET_HINTON_prueba3_04S-UNIWARD
+flavors:
+  python_function:
+    data: data
+    env:
+      conda: conda.yaml
+      virtualenv: python_env.yaml
+    loader_module: mlflow.tensorflow
+    python_version: 3.10.14
+  tensorflow:
+    code: null
+    data: data
+    keras_version: 2.10.1
+    model_type: keras
+    save_format: tf
+mlflow_version: 2.17.1
+model_size_bytes: 14548373
+model_uuid: 88c6638b81a9408088f08fbcc1a7a435
+run_id: b539227e8a024b1cbbd8eb9e7a74682e
+utc_time_created: '2024-11-10 14:59:04.349285'

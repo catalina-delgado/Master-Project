@@ -1,0 +1,15 @@
+artifact_uri: file:///C:/Users/sergioa.holguin/Documents/Mariline/library/mlruns/0/38b53ddbf1f849e7ad81b4b42875d6db/artifacts
+end_time: 1731448920857
+entry_point_name: ''
+experiment_id: '0'
+lifecycle_stage: active
+run_id: 38b53ddbf1f849e7ad81b4b42875d6db
+run_name: library/Model_CONVT_prueba1_04S-UNIWARD_1731448646.609129
+run_uuid: 38b53ddbf1f849e7ad81b4b42875d6db
+source_name: ''
+source_type: 4
+source_version: ''
+start_time: 1731448646883
+status: 4
+tags: []
+user_id: sergioa.holguin

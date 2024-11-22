@@ -104,8 +104,7 @@ class CNN():
   
   
     def fully_connected_kan (self, input):
-        output = DenseKAN(64)(input)
-        output = DenseKAN(32)(output)
-        output = DenseKAN(16)(output)
+        output = DenseKAN(16)(input)
+        output = DenseKAN(4)(output)
         return output
     

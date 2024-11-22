@@ -9,7 +9,7 @@ class Main():
     def fit(self, model, X_train, y_train, X_valid, y_valid, X_test, y_test, batch_size, epochs, initial_epoch = 0, model_name="", num_test=""):
         start_time = tm.time()
         log_dir="D:/testing_by_"+num_test+"/"+model_name+"_"+"{}".format(tm.time())
-        tensorboard = tf.keras.callbacks.TensorBoard(log_dir)
+        tensorboard = tf.keras.callbacks.TensorBoard(log_dir, histogram_freq=1)
         filepath = log_dir+"/saved-model.hdf5"
         checkpoint = tf.keras.callbacks.ModelCheckpoint(
             filepath, 
@@ -24,10 +24,9 @@ class Main():
 
         with mlflow.start_run(nested=True, run_name=num_test+"/"+model_name+"_"+"{}".format(tm.time())) as run:
             
-            mlflow.log_param("model_name", model_name)
-            mlflow.tensorflow.log_model(model, model_name)
-            mlflow.keras.log_model(model, model_name)
-
+            #mlflow.log_param("model_name", model_name)
+            #mlflow.tensorflow.log_model(model, model_name)
+            #self.log_gradients(model, data=[X_train, y_train], log_dir=log_dir)
             history=model.fit(X_train, y_train, epochs=epochs, 
                                 callbacks=[tensorboard,  checkpoint, MlflowCallback(run)], 
                                 batch_size=batch_size,
@@ -46,33 +45,53 @@ class Main():
         if not os.path.exists(results_dir):
             os.makedirs(results_dir)
         
-            plt.figure(figsize=(10, 10))
-            plt.plot(history.history['accuracy'])
-            plt.plot(history.history['val_accuracy'])
-            plt.title('Accuracy Vs Epochs')
-            plt.ylabel('Accuracy')
-            plt.xlabel('Epoch')
-            plt.legend(['Train', 'Validation'], loc='upper left')
-            plt.grid('on')
-            plt.savefig(results_dir+'Accuracy_'+model_name+'.eps', format='eps')
-            plt.savefig(results_dir+'Accuracy_'+model_name+'.svg', format='svg')
-            plt.savefig(results_dir+'Accuracy_'+model_name+'.pdf', format='pdf')
-            
-            plt.figure(figsize=(10, 10))
-            plt.plot(history.history['loss'])
-            plt.plot(history.history['val_loss'])
-            plt.title('Loss Vs Epochs')
-            plt.ylabel('Loss')
-            plt.xlabel('Epoch')
-            plt.legend(['Train', 'Validation'], loc='upper left')
-            plt.grid('on')
-            plt.savefig(results_dir+'Loss_'+model_name+'.eps', format='eps')
-            plt.savefig(results_dir+'Loss_'+model_name+'.svg', format='svg')
-            plt.savefig(results_dir+'Loss_'+model_name+'.pdf', format='pdf')
+        plt.figure(figsize=(10, 10))
+        plt.plot(history.history['accuracy'])
+        plt.plot(history.history['val_accuracy'])
+        plt.title('Accuracy Vs Epochs')
+        plt.ylabel('Accuracy')
+        plt.xlabel('Epoch')
+        plt.legend(['Train', 'Validation'], loc='upper left')
+        plt.grid('on')
+        plt.savefig(results_dir+'Accuracy_'+model_name+'.eps', format='eps')
+        plt.savefig(results_dir+'Accuracy_'+model_name+'.svg', format='svg')
+        plt.savefig(results_dir+'Accuracy_'+model_name+'.pdf', format='pdf')
+        
+        plt.figure(figsize=(10, 10))
+        plt.plot(history.history['loss'])
+        plt.plot(history.history['val_loss'])
+        plt.title('Loss Vs Epochs')
+        plt.ylabel('Loss')
+        plt.xlabel('Epoch')
+        plt.legend(['Train', 'Validation'], loc='upper left')
+        plt.grid('on')
+        plt.savefig(results_dir+'Loss_'+model_name+'.eps', format='eps')
+        plt.savefig(results_dir+'Loss_'+model_name+'.svg', format='svg')
+        plt.savefig(results_dir+'Loss_'+model_name+'.pdf', format='pdf')
 
         TIME = tm.time() - start_time
         print("Time "+model_name+" = %s [seconds]" % TIME)
         return {k:v for k,v in zip (model.metrics_names, metrics)}
+
+    
+    def log_gradients(model, data, log_dir, steps_per_epoch=1500):
+
+        file_writer = tf.summary.create_file_writer(log_dir)
+        
+        for step, (x_batch_train, y_batch_train) in enumerate(data.take(steps_per_epoch)):
+            with tf.GradientTape() as tape:
+                predictions = model(x_batch_train, training=True)
+                loss = model.compiled_loss(y_batch_train, predictions)
+
+            gradients = tape.gradient(loss, model.trainable_variables)
+            
+            with file_writer.as_default():
+                for grad, var in zip(gradients, model.trainable_variables):
+                    tf.summary.histogram(var.name + '/gradients', grad, step=step)
+                tf.summary.scalar('loss', loss, step=step)
+            
+            if step % 10 == 0:
+                print(f"Logged gradients for step {step}")
 
 
     def plot_model_summary(self, model, file_name):

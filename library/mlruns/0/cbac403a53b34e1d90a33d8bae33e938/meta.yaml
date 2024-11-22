@@ -1,0 +1,15 @@
+artifact_uri: file:///C:/Users/sergioa.holguin/Documents/Mariline/library/mlruns/0/cbac403a53b34e1d90a33d8bae33e938/artifacts
+end_time: 1731981179333
+entry_point_name: ''
+experiment_id: '0'
+lifecycle_stage: active
+run_id: cbac403a53b34e1d90a33d8bae33e938
+run_name: library/Model_swinTransformer_prueba1_04S-UNIWARD_1731981170.5133653
+run_uuid: cbac403a53b34e1d90a33d8bae33e938
+source_name: ''
+source_type: 4
+source_version: ''
+start_time: 1731981170719
+status: 4
+tags: []
+user_id: sergioa.holguin

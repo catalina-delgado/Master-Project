@@ -1,4 +1,5 @@
 /database
+/mlruns
 CTGAN.py
 *.xlsx
 *.txt

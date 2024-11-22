@@ -1,0 +1,20 @@
+artifact_path: Model_CAPSNET_selfAttention_prueba1_04S-UNIWARD
+flavors:
+  python_function:
+    data: data
+    env:
+      conda: conda.yaml
+      virtualenv: python_env.yaml
+    loader_module: mlflow.tensorflow
+    python_version: 3.10.14
+  tensorflow:
+    code: null
+    data: data
+    keras_version: 2.10.1
+    model_type: keras
+    save_format: tf
+mlflow_version: 2.17.1
+model_size_bytes: 14545847
+model_uuid: 3bc4f74b605c4f9d98e69304efea55da
+run_id: e23279fe1dc543c9837b788467bfec24
+utc_time_created: '2024-11-11 17:37:50.403435'

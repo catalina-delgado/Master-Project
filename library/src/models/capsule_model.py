@@ -55,7 +55,7 @@ class BlocksCapsule(keras.layers.Layer):
         if self.learning_rate is not None:
             optimizer = tf.keras.optimizers.SGD(learning_rate=self.learning_rate, momentum=0.95)
         else:
-            optimizer = tf.keras.optimizers.SGD(learning_rate=self.lr_schedule, momentum=0.95)
+            optimizer = tf.keras.optimizers.Adam(learning_rate=self.lr_schedule, momentum=0.95)
         
         if self.compile:
             model.compile(optimizer=optimizer,

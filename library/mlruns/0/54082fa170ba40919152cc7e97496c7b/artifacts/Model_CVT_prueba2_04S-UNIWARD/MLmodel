@@ -1,0 +1,20 @@
+artifact_path: Model_CVT_prueba2_04S-UNIWARD
+flavors:
+  python_function:
+    data: data
+    env:
+      conda: conda.yaml
+      virtualenv: python_env.yaml
+    loader_module: mlflow.tensorflow
+    python_version: 3.10.14
+  tensorflow:
+    code: null
+    data: data
+    keras_version: 2.10.1
+    model_type: keras
+    save_format: tf
+mlflow_version: 2.17.1
+model_size_bytes: 25512103
+model_uuid: 2f3c52c309a1457d9309094f4ce9d877
+run_id: 54082fa170ba40919152cc7e97496c7b
+utc_time_created: '2024-11-05 19:19:01.462877'

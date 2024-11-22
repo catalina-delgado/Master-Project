@@ -1,0 +1,15 @@
+artifact_uri: file:///C:/Users/sergioa.holguin/Documents/Mariline/library/mlruns/0/bb9787c1b8034f53996377776cd85a3a/artifacts
+end_time: 1730555624380
+entry_point_name: ''
+experiment_id: '0'
+lifecycle_stage: active
+run_id: bb9787c1b8034f53996377776cd85a3a
+run_name: library/Model_CAPSNET_CLUSTER_prueba1_04S-UNIWARD_1730554008.7542546
+run_uuid: bb9787c1b8034f53996377776cd85a3a
+source_name: ''
+source_type: 4
+source_version: ''
+start_time: 1730554008956
+status: 4
+tags: []
+user_id: sergioa.holguin

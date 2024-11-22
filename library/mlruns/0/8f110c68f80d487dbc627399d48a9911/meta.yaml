@@ -1,0 +1,15 @@
+artifact_uri: file:///C:/Users/sergioa.holguin/Documents/Mariline/library/mlruns/0/8f110c68f80d487dbc627399d48a9911/artifacts
+end_time: null
+entry_point_name: ''
+experiment_id: '0'
+lifecycle_stage: active
+run_id: 8f110c68f80d487dbc627399d48a9911
+run_name: library/Model_CAPSNET_selfAttention_prueba1_04S-UNIWARD_1731361366.0890782
+run_uuid: 8f110c68f80d487dbc627399d48a9911
+source_name: ''
+source_type: 4
+source_version: ''
+start_time: 1731361366294
+status: 1
+tags: []
+user_id: sergioa.holguin
