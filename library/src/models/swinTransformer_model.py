@@ -61,6 +61,8 @@ class CVST(keras.layers.Layer):
         print('output embd patch', encoded_patches.shape)
         layers = self.SwinTransformer(encoded_patches)
         layers = self.SwinTransformer(layers)
+        layers = self.SwinTransformer(layers)
+        layers = self.SwinTransformer(layers)
         layers = self.PatchMerging(layers)
         print('output merging', layers.shape)
 

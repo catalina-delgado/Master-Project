@@ -14,8 +14,8 @@ class TrainingCVST(Main):
 
         # Windows
         QKV_BIAS = True
-        WINDOW_SIZE = 4
-        SHIFT_SIZE = 2
+        WINDOW_SIZE = 2
+        SHIFT_SIZE = 1
 
         # Patches
         PATCH_SIZE = 2
@@ -23,7 +23,7 @@ class TrainingCVST(Main):
 
         LAYER_NORM_EPS = 1e-5
         DROPOUT_RATE = 0.1
-        NUM_HEADS = 8
+        NUM_HEADS = 4
         NUM_MLP = 512
 
         return {
@@ -48,11 +48,11 @@ class TrainingCVST(Main):
         hyperparams = self.__hyperparams()
 
         architecture = CVST(inputs, srm_weights, biasSRM, hyperparams, learning_rate=5e-3)
-        #prueba 1 - 4 block_2 - windows size 2, patch size 2, dropout rate 0.03, mlp 128
-        #prueba 2 - 5 block_2 - windows size 2, patch size 2, dropout rate 0.03, mlp 128
-        #prueba 3 - 5 block 2 - windows size 2, patch size 2, dropout rate 0.03, mlp 512 
-        #prueba 4 - 5 block 2 - windows size 4, patch size 2, dropout rate 0.1, mlp 512 
-
+        #prueba 1 - 4 block_2 - windows size 2, patch size 2, dropout rate 0.03, mlp 128 - shift 1, num_heads 8
+        #prueba 2 - 5 block_2 - windows size 2, patch size 2, dropout rate 0.03, mlp 128 - shift 1, num_heads 8
+        #prueba 3 - 5 block 2 - windows size 2, patch size 2, dropout rate 0.03, mlp 512 - shift 1, num_heads 8
+        #prueba 4 - 5 block 2 - windows size 4, patch size 2, dropout rate 0.1, mlp 512 - shift 2, num_heads 8
+        #prueba 5 - 5 block 2 - windows size 4, patch size 2, dropout rate 0.1, mlp 512 - shift 1, num_heads 4
 
         self.plot_model_summary(architecture.model, 'swinTransformer_model_summary')
 
@@ -68,6 +68,6 @@ class TrainingCVST(Main):
 
     
         base_name="04S-UNIWARD"
-        name="Model_"+'swinTransformer_prueba4'+"_"+base_name
+        name="Model_"+'swinTransformer_prueba6'+"_"+base_name
         _, history  = self.fit(architecture.model, X_train, y_train, X_valid, y_valid, X_test, y_test, batch_size=self.BATCH_SIZE, epochs=self.EPOCHS, model_name=name, num_test='library')
 

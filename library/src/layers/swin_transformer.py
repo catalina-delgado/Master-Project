@@ -97,9 +97,22 @@ class WindowAttention(tf.keras.layers.Layer):
 
 class SwinTransformer(tf.keras.layers.Layer):
     
-    def __init__(self, hyperparams):
+    def __init__(self, 
+                hyperparams,
+                IMAGE_SIZE = 16,
+                PROJECTION_DIM = 128,
+                QKV_BIAS = True,
+                WINDOW_SIZE = 4,
+                SHIFT_SIZE = 2,
+                PATCH_SIZE = 2,
+                LAYER_NORM_EPS = 1e-5,
+                DROPOUT_RATE = 0.1,
+                NUM_HEADS = 8,
+                NUM_MLP = 512
+                ):
         super(SwinTransformer, self).__init__()
         self.hyperparams = hyperparams
+        NUM_PATCHES = IMAGE_SIZE // PATCH_SIZE
 
     def build(self, input_shape):
         self.dim = self.hyperparams['PROJECTION_DIM'] 

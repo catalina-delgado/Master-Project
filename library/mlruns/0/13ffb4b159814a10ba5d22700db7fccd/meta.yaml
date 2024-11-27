@@ -1,5 +1,5 @@
 artifact_uri: file:///C:/Users/sergioa.holguin/Documents/Mariline/library/mlruns/0/13ffb4b159814a10ba5d22700db7fccd/artifacts
-end_time: null
+end_time: 1732391305780
 entry_point_name: ''
 experiment_id: '0'
 lifecycle_stage: active
@@ -10,6 +10,6 @@ source_name: ''
 source_type: 4
 source_version: ''
 start_time: 1732307547585
-status: 1
+status: 4
 tags: []
 user_id: sergioa.holguin
