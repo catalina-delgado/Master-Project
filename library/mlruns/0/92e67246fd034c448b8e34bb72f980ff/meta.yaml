@@ -1,0 +1,15 @@
+artifact_uri: file:///C:/Users/sergioa.holguin/Documents/Mariline/library/mlruns/0/92e67246fd034c448b8e34bb72f980ff/artifacts
+end_time: null
+entry_point_name: ''
+experiment_id: '0'
+lifecycle_stage: active
+run_id: 92e67246fd034c448b8e34bb72f980ff
+run_name: library/Model_ResFormer_prueba1_04S-UNIWARD_1734635309.1860921
+run_uuid: 92e67246fd034c448b8e34bb72f980ff
+source_name: ''
+source_type: 4
+source_version: ''
+start_time: 1734635309397
+status: 1
+tags: []
+user_id: sergioa.holguin

@@ -108,3 +108,27 @@ class CNN():
         output = DenseKAN(4)(output)
         return output
     
+class SEBlock(tf.keras.layers.Layer):
+    def __init__(self, n_units, **kwargs):
+        super(SEBlock, self).__init__()
+        self.glogal_avg_pooling = tf.keras.layers.GlobalAveragePooling2D()
+        self.dense_relu = tf.keras.layers.Dense(n_units/n_units, activation='relu')
+        self.dense_sigmoid = tf.keras.layers.Dense(n_units, activation='sigmoid')
+
+    def call(self, input):
+        x = self.glogal_avg_pooling(input)
+        x = self.dense_relu(x)
+        x = self.dense_sigmoid(x)
+        x = tf.reshape(x, [-1, 1, 1, x.shape[-1]]) 
+        
+        x = input * x 
+        return x
+
+    def get_config(self):
+        config = super().get_config()
+        config.update({
+            'glogal_avg_pooling': self.glogal_avg_pooling,
+            'dense_relu': self.dense_relu,
+            'dense_sigmoid': self.dense_sigmoid
+        })
+        return config

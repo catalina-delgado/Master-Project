@@ -1,0 +1,15 @@
+artifact_uri: file:///C:/Users/sergioa.holguin/Documents/Mariline/library/mlruns/0/bf05008c89e84335b71bfb163dcf6141/artifacts
+end_time: 1734632368518
+entry_point_name: ''
+experiment_id: '0'
+lifecycle_stage: active
+run_id: bf05008c89e84335b71bfb163dcf6141
+run_name: library/Model_SWINTBlocks_prueba9_04S-UNIWARD_1734632313.7939274
+run_uuid: bf05008c89e84335b71bfb163dcf6141
+source_name: ''
+source_type: 4
+source_version: ''
+start_time: 1734632313990
+status: 4
+tags: []
+user_id: sergioa.holguin
