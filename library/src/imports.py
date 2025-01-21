@@ -1,4 +1,5 @@
 import numpy as np
+import matplotlib as mpl
 import matplotlib.pyplot as plt
 import seaborn as sns
 import tensorflow as tf
@@ -26,6 +27,7 @@ import datetime
 from skimage.util.shape import view_as_blocks
 from contextlib import redirect_stdout
 
+import cv2
 import glob
 import os
 import random

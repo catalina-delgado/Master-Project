@@ -1,0 +1,74 @@
+from src.imports import tf, keras, np, mpl, plt, cv2
+import os
+
+class GradCAM():
+    def __init__(self):
+        super(GradCAM, self).__init__()
+        os.environ["KERAS_BACKEND"] = "tensorflow"
+        
+    def get_img_array(self, img_path, size):
+        image = cv2.imread(img_path, cv2.IMREAD_GRAYSCALE)  
+        image = cv2.resize(image, size)  
+        input_image = np.expand_dims(image, axis=0)  # Add batch dimension
+        input_image = np.expand_dims(input_image, axis=-1)  # Add channel for compatibility
+        return input_image
+    
+    def make_gradcam_heatmap(self, img_array, model, last_conv_layer_name, pred_index=None):
+        grad_model = tf.keras.models.Model(
+            [model.inputs], [model.get_layer(last_conv_layer_name).output, model.output]
+        )
+        
+        with tf.GradientTape() as tape:
+            last_conv_layer_output, preds = grad_model(img_array)
+            if pred_index is None:
+                pred_index = tf.argmax(preds[0])
+            class_channel = preds[:, self.pred_index]
+            
+        grads = tape.gradient(class_channel, last_conv_layer_output)
+        pooled_grads = tf.reduce_mean(grads, axis=(0, 1, 2))
+        last_conv_layer_output = last_conv_layer_output[0]
+        heatmap = last_conv_layer_output @ pooled_grads[..., tf.newaxis]
+        heatmap = tf.squeeze(heatmap)
+        heatmap = tf.maximum(heatmap, 0) / tf.math.reduce_max(heatmap)
+        return heatmap.numpy()
+    
+    def save_and_overlay_gradcam(self, img_path, heatmap, extention_model, model_path, layer_name):
+        img = keras.utils.load_img(img_path)
+        img = keras.utils.img_to_array(img)
+        
+        heatmap = np.uint8(255 * heatmap)
+        jet = mpl.colormaps["jet"]
+        jet_colors = jet(np.arange(256))[:, :3]
+        jet_heatmap = jet_colors[heatmap]
+        
+        jet_heatmap = keras.utils.array_to_img(jet_heatmap)
+        jet_heatmap = jet_heatmap.resize((img.shape[1], img.shape[0]))
+        jet_heatmap = keras.utils.img_to_array(jet_heatmap)
+        
+        superimposed_img = jet_heatmap * 0.4 + img
+        superimposed_img = keras.utils.array_to_img(superimposed_img)
+        
+        output_dir = os.path.join(os.getcwd(), "gradcam_outputs")
+        os.makedirs(output_dir, exist_ok=True)
+        
+        model_name = os.path.basename(model_path).replace(extention_model, '')
+        output_filename = f"gradcam_outputs/gradcam_{model_name}_{layer_name}_keras_cam.png"
+
+        superimposed_img.save(output_filename)
+
+        print(f"Grad-CAM saved in: {output_dir}")
+        
+    def decode_predictions(self, preds):
+        """
+        Decodes the model predictions to convert indices into readable labels.
+
+        Args:
+            preds (numpy.ndarray): Model output, an array with class probabilities.
+        Returns:
+            list: List of tuples (class_id, label, probability).
+        """
+        class_labels = {0: "cover", 1: "stego"}
+        idx = np.argmax(preds, axis=1)[0]  # Get index with highest probability
+        label = class_labels[idx]
+        confidence = preds[0][idx]
+        return [(idx, label, confidence)]
