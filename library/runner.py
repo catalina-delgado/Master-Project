@@ -2,6 +2,7 @@ import importlib
 import os
 import sys
 import inspect
+import argparse
 
 def run_train_methods(epochs, batch_size):
 
@@ -24,10 +25,46 @@ def run_train_methods(epochs, batch_size):
                             print(f"Ejecutando {name}.{method_name}()")
                             method()
 
+def run_gradcam_scripts():
+    gradcam_dir = os.path.join(os.path.dirname(__file__), 'gradcam')
+    sys.path.insert(0, gradcam_dir)
+
+    for filename in os.listdir(gradcam_dir):
+        if filename.startswith("map") and filename.endswith(".py"):
+            module_name = filename[:-3]
+            module = importlib.import_module(module_name)
+            print(f"Importado módulo: {module_name}")
+            
+            gradcam_class = None
+            for name, obj in vars(module).items():
+                if name.lower().startswith("map") and isinstance(obj, type):
+                    gradcam_class = obj
+                    break
+            
+            if gradcam_class:
+                print(f"Ejecutando {module_name}.{gradcam_class.__name__}()")
+                instance = gradcam_class()
+
+                for method_name in dir(instance):
+                    if method_name.startswith("generate"):
+                        method = getattr(instance, method_name)
+                        if callable(method):
+                            print(f"Ejecutando {module_name}.{gradcam_class.__name__}.{method_name}()")
+                            method()
+            else:
+                print(f"{module_name} no tiene una clase que empieza con `GradCAM`")
+
+
 if __name__ == "__main__":
-    import argparse
-    parser = argparse.ArgumentParser()
-    parser.add_argument("--epochs", type=int, default=10)
-    parser.add_argument("--batch_size", type=int, default=32)
+    parser = argparse.ArgumentParser(description='Run training or Grad-CAM scripts.')
+    parser.add_argument('--mode', type=str, required=True, choices=['train', 'gradcam'], help='Select mode: train or gradcam')
+    parser.add_argument('--batch_size', type=int, default=32, help='Batch size for training')
+    parser.add_argument('--epochs', type=int, default=5, help='Number of epochs for training')
+    
     args = parser.parse_args()
-    run_train_methods(epochs=args.epochs, batch_size=args.batch_size)
+
+    if args.mode == 'train':
+        run_train_methods(batch_size=args.batch_size, epochs=args.epochs)
+    elif args.mode == 'gradcam':
+        run_gradcam_scripts()
+
