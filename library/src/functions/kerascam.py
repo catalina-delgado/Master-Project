@@ -32,7 +32,7 @@ class GradCAM():
         heatmap = tf.maximum(heatmap, 0) / tf.math.reduce_max(heatmap)
         return heatmap.numpy()
     
-    def save_and_overlay_gradcam(self, img_path, heatmap, extention_model, model_path, layer_name):
+    def save_and_overlay_gradcam(self, img_path, heatmap, model_name, layer_name):
         img = keras.utils.load_img(img_path)
         img = keras.utils.img_to_array(img)
         
@@ -51,8 +51,7 @@ class GradCAM():
         output_dir = os.path.join(os.getcwd(), "gradcam_outputs")
         os.makedirs(output_dir, exist_ok=True)
         
-        model_name = os.path.basename(model_path).replace(extention_model, '')
-        output_filename = f"gradcam_outputs/gradcam_{model_name}_{layer_name}_keras_cam.png"
+        output_filename = f"gradcam_outputs/gradcam_{model_name}_{layer_name}.png"
 
         superimposed_img.save(output_filename)
 
@@ -68,7 +67,16 @@ class GradCAM():
             list: List of tuples (class_id, label, probability).
         """
         class_labels = {0: "cover", 1: "stego"}
-        idx = np.argmax(preds, axis=1)[0]  # Get index with highest probability
+        # Get index with highest probability
+        if len(preds.shape) == 1: 
+            idx = int(np.argmax(preds)) 
+            confidence = preds[idx]
+        else:  
+            idx = int(np.argmax(preds, axis=1)[0])  
+            confidence = preds[0][idx]
+
+        print("idx:", idx) 
+        
         label = class_labels[idx]
         confidence = preds[0][idx]
         return [(idx, label, confidence)]
