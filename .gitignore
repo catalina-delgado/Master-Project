@@ -3,3 +3,6 @@
 CTGAN.py
 *.xlsx
 *.txt
+.gitignore
+
+__pycache__/
