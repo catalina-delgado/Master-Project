@@ -10,10 +10,17 @@ This project focuses on training deep learning models for image steganalysis usi
 - SRM filters for feature extraction
 
 ## Usage
-To start training the models, navigate to the library folder in your terminal and run:
+
+To begin training the models, navigate to the library folder in your terminal and execute the following command:
 ```
-python -m runner --epochs 400 --batch_size 8
+python -m runner --mode train --batch_size 8 --epochs 400
 ```
+
+To generate GradCam maps, use the command below:
+```
+python -m runner --mode gradcam
+```
+
 ## Architectures Included
 The following architectures are available for training in this project:
 
