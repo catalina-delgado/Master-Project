@@ -1,11 +1,13 @@
 from src.imports import tf, cv2, np, plt, K
 from src.functions.kerascam import GradCAM
+from src.functions.main import Main
 from src.layers.capsule_selfAttention import CapsuleSelfAttention
+#from tensorflow.keras.utils import plot_model
 
 
 class MapCapsuleSelfAttention_prueba5(GradCAM):
     def __init__(self):
-        self.code_image = "985"
+        self.code_image = "imagen_stego"
         self.image_path = f"gradcam\images\{self.code_image}.pgm" 
         self.input_image = self.get_img_array(self.image_path, (256, 256))
         self.pred_index = 1
@@ -17,11 +19,16 @@ class MapCapsuleSelfAttention_prueba5(GradCAM):
 
     def generate_gradcam(self):
         model_path = "trained_models\Model_CAPSNET_selfAttention_prueba5_04S-UNIWARD_1731615714.8733466\saved-model.hdf5"
-        layer_name = 'conv2d_4'
+        layer_name = 'conv2d_20'
+        
         model = tf.keras.models.load_model(model_path, custom_objects={
             '__Tanh3':self.__Tanh3,
             'CapsuleSelfAttention':CapsuleSelfAttention
             }) 
+        
+        #print(model.summary())
+        #plot_model(model, to_file='CapsuleSelfAttention_architecture.png', show_shapes=True, show_layer_names=True)
+
         model.layers[-1].activation = None
         
         # Print what the top predicted class is
