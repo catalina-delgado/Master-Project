@@ -5,7 +5,7 @@ from src.layers.transformer import Transformer
 
 class MapCVT_prueba1(GradCAM):
     def __init__(self):
-        self.code_image = "985"
+        self.code_image = "9724"
         self.image_path = f"gradcam\images\{self.code_image}.pgm" 
         self.input_image = self.get_img_array(self.image_path, (256, 256))
         self.pred_index = 1
