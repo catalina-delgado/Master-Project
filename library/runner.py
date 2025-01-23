@@ -6,7 +6,7 @@ import argparse
 
 def run_train_methods(epochs, batch_size):
 
-    train_dir = os.path.join(os.path.dirname(__file__), 'train')
+    train_dir = os.path.join(os.path.dirname(__file__), 'training')
     sys.path.insert(0, train_dir)  
     
     for filename in os.listdir(train_dir):
