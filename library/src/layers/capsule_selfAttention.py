@@ -1,8 +1,8 @@
 from src.imports import tf, K
 
 class CapsuleSelfAttention(tf.keras.layers.Layer):
-    def __init__(self, num_clases=2, vec=16, input_dim=512):
-        super(CapsuleSelfAttention, self).__init__()
+    def __init__(self, num_clases=2, vec=16, input_dim=512, **kwargs):
+        super(CapsuleSelfAttention, self).__init__(**kwargs)
         self.num_clases = num_clases
         self.vec = vec
         self.input_dim = input_dim

@@ -1,8 +1,8 @@
 from src.imports import tf, np
 
 class WindowAttention(tf.keras.layers.Layer):
-    def __init__(self, window_size, hyperparams):
-        super(WindowAttention, self).__init__()
+    def __init__(self, window_size, hyperparams, **kwargs):
+        super(WindowAttention, self).__init__(**kwargs)
         self.hyperparams = hyperparams
         self.window_size = window_size
 
@@ -108,11 +108,22 @@ class SwinTransformer(tf.keras.layers.Layer):
                 LAYER_NORM_EPS = 1e-5,
                 DROPOUT_RATE = 0.1,
                 NUM_HEADS = 8,
-                NUM_MLP = 512
+                NUM_MLP = 512,
+                **kwargs
                 ):
-        super(SwinTransformer, self).__init__()
-        self.hyperparams = hyperparams
-        NUM_PATCHES = IMAGE_SIZE // PATCH_SIZE
+        super(SwinTransformer, self).__init__(**kwargs)
+        self.hyperparams = hyperparams,
+        self.image_size = IMAGE_SIZE,
+        self.projection_dim = PROJECTION_DIM,
+        self.qkv_bias = QKV_BIAS,
+        self.window_size = WINDOW_SIZE,
+        self.shift_size = SHIFT_SIZE,
+        self.patch_size = PATCH_SIZE,
+        self.layer_norm_eps = LAYER_NORM_EPS,
+        self.dropout_rate = DROPOUT_RATE,
+        self.num_heads = NUM_HEADS,
+        self.num_mlp = NUM_MLP
+        NUM_PATCHES = self.image_size // self.patch_size
 
     def build(self, input_shape):
         self.dim = self.hyperparams['PROJECTION_DIM'] 
@@ -258,16 +269,39 @@ class SwinTransformer(tf.keras.layers.Layer):
     def get_config(self):
         config = super().get_config()
         config.update({
-            "hyperparams": self.hyperparams
+            "hyperparams": self.hyperparams,
+            'image_size': self.image_size,
+            'projection_dim': self.projection_dim,
+            'qkv_bias': self.qkv_bias,
+            'window_size': self.window_size,
+            'shift_size': self.shift_size,
+            'patch_size': self.patch_size,
+            'layer_norm_eps': self.layer_norm_eps,
+            'dropout_rate': self.dropout_rate,
+            'num_heads': self.num_heads,
+            'num_mlp': self.num_mlp
         })
         return config
     
 
 class PatchEmbedding(tf.keras.layers.Layer):
-    def __init__(self, hyperparams):
-        super(PatchEmbedding, self).__init__()
-        self.num_patch = hyperparams['NUM_PATCHES']**2
-        self.pos_embed = tf.keras.layers.Embedding(input_dim=self.num_patch, output_dim=hyperparams['PROJECTION_DIM'], name="patches_embedding")
+    def __init__(self, hyperparams = {
+            'LAYER_NORM_EPS': 1e-5,
+            'PROJECTION_DIM': 128,
+            'NUM_HEADS': 4,
+            'IMAGE_SIZE': 16,
+            'NUM_PATCHES': 16 // 2,
+            'QKV_BIAS': True,
+            'WINDOW_SIZE': 8,
+            'SHIFT_SIZE': 2,
+            'DROPOUT_RATE': 0.1,
+            'NUM_MLP': 512,
+            'PATCH_SIZE': 2
+        }, **kwargs):
+        super(PatchEmbedding, self).__init__(**kwargs)
+        self.hyperparams = hyperparams
+        self.num_patch = self.hyperparams['NUM_PATCHES']**2
+        self.pos_embed = tf.keras.layers.Embedding(input_dim=self.num_patch, output_dim=self.hyperparams['PROJECTION_DIM'], name="patches_embedding")
 
     def call(self, projected_patches):
         pos = tf.range(start=0, limit=self.num_patch, delta=1)
@@ -276,17 +310,17 @@ class PatchEmbedding(tf.keras.layers.Layer):
     def get_config(self):
         config = super().get_config()
         config.update({
-            "num_patch": self.num_patch,
-            'pos_embed': self.pos_embed
+            "hyperparams": self.hyperparams,
         })
         return config
 
 
 class PatchMerging(tf.keras.layers.Layer):
-    def __init__(self, hyperparams):
-        super(PatchMerging, self).__init__()
-        self.num_patch = (hyperparams['NUM_PATCHES'], hyperparams['NUM_PATCHES'])
-        self.embed_dim = hyperparams['PROJECTION_DIM']
+    def __init__(self, hyperparams, **kwargs):
+        super(PatchMerging, self).__init__(**kwargs)
+        self.hyperparams = hyperparams
+        self.num_patch = (self.hyperparams['NUM_PATCHES'], self.hyperparams['NUM_PATCHES'])
+        self.embed_dim = self.hyperparams['PROJECTION_DIM']
         self.linear_trans = tf.keras.layers.Dense(2 * self.embed_dim, use_bias=False)
  
     def call(self, x):
@@ -304,9 +338,7 @@ class PatchMerging(tf.keras.layers.Layer):
     def get_config(self):
         config = super().get_config()
         config.update({
-            "num_patch": self.num_patch,
-            'embed_dim': self.embed_dim,
-            'linear_trans': self.linear_trans
+            "hyperparams": self.hyperparams
         })
         return config
 
@@ -323,7 +355,7 @@ class SwinTBlock(tf.keras.layers.Layer):
                 window_size=7,
                 **kwargs):
         
-        super().__init__()
+        super().__init__(**kwargs)
         self.hyperparams = hyperparams
         self.image_size = img_size
         self.depth = depth
@@ -362,4 +394,17 @@ class SwinTBlock(tf.keras.layers.Layer):
             x = layer(x)
             print('layer', x)
         return x
-     
+    
+    def get_config(self):
+        config = super().get_config()
+        config.update({
+            "hyperparams": self.hyperparams,
+            'img_size': self.image_size,
+            'patch_size': self.patch_size,
+            'embed_dim': self.embed_dim,
+            'depth': self.depth,
+            'num_heads': self.num_heads,
+            'num_mlp': self.num_mlp,
+            'window_size': self.windows_size
+        })
+        return config
