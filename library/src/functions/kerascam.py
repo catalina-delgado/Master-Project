@@ -1,4 +1,4 @@
-from src.imports import tf, keras, np, mpl, plt, cv2
+from src.imports import tf, keras, np, mpl
 import os
 
 class GradCAM():
@@ -7,10 +7,10 @@ class GradCAM():
         os.environ["KERAS_BACKEND"] = "tensorflow"
         
     def get_img_array(self, img_path, size):
-        image = cv2.imread(img_path, cv2.IMREAD_GRAYSCALE)  
-        image = cv2.resize(image, size)  
-        input_image = np.expand_dims(image, axis=0)  # Add batch dimension
-        input_image = np.expand_dims(input_image, axis=-1)  # Add channel for compatibility
+        image = keras.utils.load_img(img_path, color_mode="grayscale", target_size=size)
+        input_image = keras.utils.img_to_array(image)
+        input_image = np.expand_dims(input_image, axis=0)  # Add batch dimension
+        
         return input_image
     
     def make_gradcam_heatmap(self, img_array, model, last_conv_layer_name, pred_index=None):
@@ -22,7 +22,7 @@ class GradCAM():
             last_conv_layer_output, preds = grad_model(img_array)
             if pred_index is None:
                 pred_index = tf.argmax(preds[0])
-            class_channel = preds[:, self.pred_index]
+            class_channel = preds[:, pred_index]
             
         grads = tape.gradient(class_channel, last_conv_layer_output)
         pooled_grads = tf.reduce_mean(grads, axis=(0, 1, 2))
@@ -35,7 +35,6 @@ class GradCAM():
     def save_and_overlay_gradcam(self, img_path, heatmap, model_name, layer_name):
         img = keras.utils.load_img(img_path)
         img = keras.utils.img_to_array(img)
-        
         heatmap = np.uint8(255 * heatmap)
         jet = mpl.colormaps["jet"]
         jet_colors = jet(np.arange(256))[:, :3]
