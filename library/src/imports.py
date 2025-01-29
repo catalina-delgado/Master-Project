@@ -33,6 +33,7 @@ import os
 import random
 import ntpath
 import copy
+import shap
 
 from tfkan.layers import DenseKAN
 
