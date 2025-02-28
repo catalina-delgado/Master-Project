@@ -24,16 +24,16 @@ class Training(Main):
         #prueba 8 - learning rate 5e-3 - block1 - step1_depth 4 - step2_depth 2 - step3_depth 2 - step4_depth 1
         #prueba 9 - learning rate 5e-3 - step1_depth 4 - step2_depth 2 - step3_depth 2 - step4_depth 1 - PPMconcat - FC
 
-        self.plot_model_summary(architecture.model, 'swint__model_summary')
+        #self.plot_model_summary(architecture.model, 'swint__model_summary')
 
-        X_train = np.load('../database/data_gbras/X_train.npy') # (12000, 256, 256, 1)
-        y_train = np.load('../database/data_gbras/y_train.npy') # (12000, 2)
-        X_valid = np.load('../database/data_gbras/X_valid.npy') # (4000, 256, 256, 1)
-        y_valid = np.load('../database/data_gbras/y_valid.npy') # (4000, 2)
-        X_test = np.load('../database/data_gbras/X_test.npy') # (4000, 256, 256, 1)
-        y_test = np.load('../database/data_gbras/y_test.npy') # (4000, 2)
+        X_train = np.load('../database/BOSS/WOW/X_train.npy') # (12000, 256, 256, 1)
+        y_train = np.load('../database/BOSS/WOW/y_train.npy') # (12000, 2)
+        X_valid = np.load('../database/BOSS/WOW/X_valid.npy') # (4000, 256, 256, 1)
+        y_valid = np.load('../database/BOSS/WOW/y_valid.npy') # (4000, 2)
+        X_test = np.load('../database/BOSS/WOW/X_test.npy') # (4000, 256, 256, 1)
+        y_test = np.load('../database/BOSS/WOW/y_test.npy') # (4000, 2)
 
-        base_name="04S-UNIWARD"
+        base_name="04S-WOW"
         name="Model_"+'SWINTBlocks_prueba10'+"_"+base_name
-        _, history  = self.fit(architecture.model, X_train, y_train, X_valid, y_valid, X_test, y_test, batch_size=self.BATCH_SIZE, epochs=self.EPOCHS, model_name=name, num_test='library')
+        _, history  = self.fit(architecture.model, X_train, y_train, X_valid, y_valid, X_test, y_test, batch_size=self.BATCH_SIZE, epochs=self.EPOCHS, model_name=name, num_test='library-WOW')
                 
