@@ -1,0 +1,10 @@
+/database
+/mlruns
+CTGAN.py
+*.xlsx
+*.txt
+
+__pycache__/
+
+trained_models/
+format_images.py
