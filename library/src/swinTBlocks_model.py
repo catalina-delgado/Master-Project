@@ -1,4 +1,63 @@
-from src.imports import tf, K, np
+import numpy as np
+import tensorflow as tf
+from tensorflow import keras
+from tensorflow.keras import backend as K
+from functions.main import Main
+
+
+def __sreLu (input):
+    return tf.keras.layers.ReLU(negative_slope=0.1, threshold=0)(input)
+
+def __sConv(input,parameters,size,nstrides):
+    return tf.keras.layers.Conv2D(parameters, (size,size), strides=(nstrides,nstrides),padding="same", kernel_initializer='glorot_normal', kernel_regularizer=tf.keras.regularizers.l2(0.0001),bias_regularizer=tf.keras.regularizers.l2(0.0001))(input)
+
+def __sBN (input):
+    return tf.keras.layers.BatchNormalization(momentum=0.2, epsilon=0.001, center=True, scale=True, trainable=True, fused=None, renorm=False, renorm_clipping=None, renorm_momentum=0.4, adjustment=None)(input)
+
+def Block_1 (input, parameter):
+        output = __sConv(input, parameter, 3, 1)
+        output = __sBN(output)
+        output = __sreLu(output)
+        return output
+    
+class SEBlock(tf.keras.layers.Layer):
+    def __init__(self, n_units=64, **kwargs):
+        super(SEBlock, self).__init__()
+        self.glogal_avg_pooling = tf.keras.layers.GlobalAveragePooling2D()
+        self.dense_relu = tf.keras.layers.Dense(n_units/n_units, activation='relu')
+        self.dense_sigmoid = tf.keras.layers.Dense(n_units, activation='sigmoid')
+
+    def call(self, input):
+        x = self.glogal_avg_pooling(input)
+        x = self.dense_relu(x)
+        x = self.dense_sigmoid(x)
+        x = tf.reshape(x, [-1, 1, 1, x.shape[-1]]) 
+        
+        x = input * x 
+        return x
+
+    def get_config(self):
+        config = super().get_config()
+        config.update({
+            'glogal_avg_pooling': self.glogal_avg_pooling,
+            'dense_relu': self.dense_relu,
+            'dense_sigmoid': self.dense_sigmoid
+        })
+        return config
+
+def fully_connected (input):
+        output = tf.keras.layers.Dense(128,kernel_initializer='glorot_normal',kernel_regularizer=tf.keras.regularizers.l2(0.0001),bias_regularizer=tf.keras.regularizers.l2(0.0001))(input)
+        output = tf.keras.layers.ReLU(negative_slope=0.1, threshold=0)(output)
+        output = tf.keras.layers.Dense(64,kernel_initializer='glorot_normal',kernel_regularizer=tf.keras.regularizers.l2(0.0001),bias_regularizer=tf.keras.regularizers.l2(0.0001))(output)
+        output = tf.keras.layers.ReLU(negative_slope=0.1, threshold=0)(output)
+        output = tf.keras.layers.Dense(32,kernel_initializer='glorot_normal',kernel_regularizer=tf.keras.regularizers.l2(0.0001),bias_regularizer=tf.keras.regularizers.l2(0.0001))(output)
+        output = tf.keras.layers.ReLU(negative_slope=0.1, threshold=0)(output)
+        return output
+
+def Tanh3(x):
+        T3 = 3
+        tanh3 = K.tanh(x)*T3
+        return tanh3
 
 class WindowAttention(tf.keras.layers.Layer):
     def __init__(self,
@@ -104,7 +163,6 @@ class WindowAttention(tf.keras.layers.Layer):
             'DROPOUT_RATE': self.DROPOUT_RATE
         })
         return config
-
 
 class SwinTransformer(tf.keras.layers.Layer):
 
@@ -298,7 +356,6 @@ class SwinTransformer(tf.keras.layers.Layer):
         })
         return config
 
-
 class PatchEmbedding(tf.keras.layers.Layer):
     def __init__(self,
                 IMAGE_SIZE,
@@ -327,7 +384,6 @@ class PatchEmbedding(tf.keras.layers.Layer):
             "PROJECTION_DIM": self.PROJECTION_DIM
         })
         return config
-
 
 class PatchMerging(tf.keras.layers.Layer):
     def __init__(self,
@@ -365,7 +421,6 @@ class PatchMerging(tf.keras.layers.Layer):
             "PATCH_SIZE": self.PATCH_SIZE
         })
         return config
-
 
 class SwinTBlock(tf.keras.layers.Layer):
     def __init__(self,
@@ -438,7 +493,6 @@ class SwinTBlock(tf.keras.layers.Layer):
         # Ajusta según tu cálculo de ventanas
         return (batch_size, num_patches, embed_dim)
 
-
 class ReshapeLayer(tf.keras.layers.Layer):
   def __init__(self, target_shape, **kwargs):
       super(ReshapeLayer, self).__init__(**kwargs)
@@ -454,43 +508,133 @@ class ReshapeLayer(tf.keras.layers.Layer):
         })
         return config
 
-
-class PPMConcat(tf.keras.layers.Layer):
-    """
-    Pyramid Pooling Module
-
-    """
-
-    def __init__(self, pool_scales=(1, 2, 4, 8)):
-        super(PPMConcat, self).__init__()
-        self.adaptive_pools = [
-            tf.keras.layers.AveragePooling1D(pool_size=scale, padding='valid')
-            for scale in pool_scales
-        ]
-
-    def call(self, inputs):
-        for tensor in inputs:
-            tensor_outs = []
-            
-            for pool in self.adaptive_pools:
-                # Aplicar el pooling
-                pooled = pool(tensor)
-                B = tf.shape(pooled)[0] 
-                L = tf.shape(pooled)[1] 
-                C = tf.shape(pooled)[2] 
-                # Aplanar las dimensiones espaciales
-                flattened = tf.reshape(pooled, [B, L*C])
-                tensor_outs.append(flattened)
-            # Concatenar las características de todas las escalas
-            concatenated = tf.concat(tensor_outs, axis=-1)
-        # Concatenar las características de todos los tensores
-        final_out = tf.concat(concatenated, axis=-1)
-        return final_out
+class CVSTB(keras.layers.Layer):
+    def __init__(self, inputs, srm_weights, biasSRM, learning_rate=None, lr_schedule=0.001, compile=True):
+        super(CVSTB, self).__init__()
+        self.learning_rate = learning_rate
+        self.lr_schedule = lr_schedule
+        self.compile = compile
+        self.model = self.build_model(inputs, srm_weights, biasSRM)
     
-    def get_config(self):
-        config = super().get_config()
-        config.update({
-            'adaptive_pools': self.adaptive_pools
-        })
-        return config
+    def build_model(self, input_shape, srm_weights, biasSRM):
+        tf.keras.backend.clear_session()
 
+        #Preprocessing
+        layers_ty = tf.keras.layers.Conv2D(30, (5,5), weights=[srm_weights,biasSRM], strides=(1,1), padding='same', trainable=False, activation=Tanh3, use_bias=True)(input_shape)
+        layers_tn = tf.keras.layers.Conv2D(30, (5,5), weights=[srm_weights,biasSRM], strides=(1,1), padding='same', trainable=True, activation=Tanh3, use_bias=True)(input_shape)
+
+        layers = tf.keras.layers.add([layers_ty, layers_tn])
+        layers1 = tf.keras.layers.BatchNormalization(momentum=0.2, epsilon=0.001, center=True, scale=False, trainable=True, fused=None, renorm=False, renorm_clipping=None, renorm_momentum=0.4, adjustment=None)(layers)
+
+        # L1-L2
+        layers = Block_1(layers1, 64)
+        _, image_size, _, _ = layers.shape
+
+        layers = tf.keras.layers.Conv2D(filters=64, kernel_size=(2,2), strides=(1, 1), padding="same", kernel_regularizer=tf.keras.regularizers.l2(0.0001), bias_regularizer=tf.keras.regularizers.l2(0.0001))(layers)
+        layers = tf.keras.layers.BatchNormalization(momentum=0.2, epsilon=0.001, center=True, scale=False, trainable=True, fused=None, renorm=False, renorm_clipping=None, renorm_momentum=0.4, adjustment=None)(layers)
+        layers = SEBlock(64)(layers)
+        print('output last layer before transformer', layers.shape)
+
+        # Swin Transformer
+        projection = tf.keras.layers.Conv2D(
+            filters=64,
+            kernel_size=(3,3),
+            strides=(2, 2),
+            padding="same",
+            kernel_regularizer=tf.keras.regularizers.l2(0.0001),
+            bias_regularizer=tf.keras.regularizers.l2(0.0001)
+        )(layers)
+
+        _, h, w, c = projection.shape
+        print('output projection', projection.shape)
+        projected_patches = ReshapeLayer((-1, h * w, c))(projection)
+
+        print('output projected_patches', projected_patches.shape)
+
+        encoded_patches = PatchEmbedding(IMAGE_SIZE=image_size,PATCH_SIZE=2,PROJECTION_DIM=c)(projected_patches)
+        print('output embd patch', encoded_patches.shape)
+
+        layers2 = SwinTBlock(IMAGE_SIZE=image_size, PATCH_SIZE=2, PROJECTION_DIM=64, depth=3, NUM_HEADS=2, NUM_MLP=256, WINDOW_SIZE=4, DROPOUT_RATE=0.1, LAYER_NORM_EPS=1e-5)(encoded_patches)
+        layers = PatchMerging(IMAGE_SIZE=image_size,PATCH_SIZE=2,PROJECTION_DIM=64)(layers2)
+
+        layers3 = SwinTBlock(IMAGE_SIZE=image_size, PATCH_SIZE=4, PROJECTION_DIM=128, depth=2, NUM_HEADS=4, NUM_MLP=512, WINDOW_SIZE=4, DROPOUT_RATE=0.1, LAYER_NORM_EPS=1e-5)(layers)
+        layers = PatchMerging(IMAGE_SIZE=image_size,PATCH_SIZE=4,PROJECTION_DIM=128)(layers3)
+
+        layers4 = SwinTBlock(IMAGE_SIZE=image_size, PATCH_SIZE=8, PROJECTION_DIM=256, depth=2, NUM_HEADS=8, NUM_MLP=1024, WINDOW_SIZE=8, DROPOUT_RATE=0.1, LAYER_NORM_EPS=1e-5)(layers)
+        layers = PatchMerging(IMAGE_SIZE=image_size, PATCH_SIZE=8, PROJECTION_DIM=256)(layers4)
+
+        layers5 = SwinTBlock(IMAGE_SIZE=image_size, PATCH_SIZE=16, PROJECTION_DIM=512, depth=1, NUM_HEADS=16, NUM_MLP=4096, WINDOW_SIZE=8, DROPOUT_RATE=0.1, LAYER_NORM_EPS=1e-5)(layers)
+        
+        layers = tf.keras.layers.BatchNormalization(momentum=0.2, epsilon=0.001, center=True, scale=False, trainable=True, fused=None, renorm=False, renorm_clipping=None, renorm_momentum=0.4, adjustment=None)(layers5)
+        layers = tf.keras.layers.GlobalAvgPool1D()(layers)
+
+        layers = fully_connected(layers)
+
+        predictions = tf.keras.layers.Dense(2, activation="softmax", name="output_1",kernel_regularizer=tf.keras.regularizers.l2(0.0001),bias_regularizer=tf.keras.regularizers.l2(0.0001))(layers)
+        model = tf.keras.Model(inputs=input_shape, outputs=predictions)
+
+        if self.learning_rate is not None:
+            optimizer = tf.keras.optimizers.SGD(learning_rate=self.learning_rate, momentum=0.9)
+        else:
+            optimizer = tf.keras.optimizers.Adam(learning_rate=self.lr_schedule)
+
+        if self.compile:
+            model.compile(optimizer=optimizer,
+                          loss='categorical_crossentropy',
+                          metrics=['accuracy'])
+
+        print("Arquitecture swin transformer created")
+        return model
+
+    def call(self, inputs, training=None):
+        return self.model(inputs)
+
+class Training(Main):
+    def __init__(self, epochs, batch_size, dataset):
+        self.EPOCHS = epochs
+        self.BATCH_SIZE = batch_size
+        self.DATASET = dataset
+
+    def train_model(self):
+
+        inputs = tf.keras.Input(shape=(256, 256, 1))
+        srm_weights = np.load('../../filters/SRM_Kernels.npy') 
+        biasSRM = np.ones(30)
+
+        architecture = CVSTB(inputs, srm_weights, biasSRM, learning_rate=5e-3)
+        #prueba 1 - lr_schedule 5e-4
+        #prueba 2 - learning rate 5e-3 - block3 - step1_depth 2 - step2_depth 2 - step3_depth 6
+        #prueba 3 - learning rate 5e-3 - block3 - step1_depth 2 - step2_depth 2 - step3_depth 2 - step4_depth 6
+        #prueba 4 - learning rate 5e-3 - block3 - step1_depth 2 - step2_depth 2 - step3_depth 6 - step4_depth 11
+        #prueba 5 - learning rate 5e-3 - block3 - step1_depth 3 - step2_depth 3 - step3_depth 2 - step4_depth 2
+        #prueba 6 - learning rate 5e-3 - step1_depth 2 - step2_depth 2 - step3_depth 3 - step4_depth 3
+        #prueba 7 - learning rate 5e-3 - block1 - step1_depth 3 - step2_depth 2 - step3_depth 2 - step4_depth 2
+        #prueba 8 - learning rate 5e-3 - block1 - step1_depth 4 - step2_depth 2 - step3_depth 2 - step4_depth 1
+        #prueba 9 - learning rate 5e-3 - step1_depth 4 - step2_depth 2 - step3_depth 2 - step4_depth 1 - PPMconcat - FC
+
+        self.plot_model_summary(architecture.model, 'swinTBlocks_summary')
+
+        X_train = np.load('../../database/BOSS/'+self.DATASET+'/X_train.npy') # (12000, 256, 256, 1)
+        y_train = np.load('../../database/BOSS/'+self.DATASET+'/y_train.npy') # (12000, 2)
+        X_valid = np.load('../../database/BOSS/'+self.DATASET+'/X_valid.npy') # (4000, 256, 256, 1)
+        y_valid = np.load('../../database/BOSS/'+self.DATASET+'/y_valid.npy') # (4000, 2)
+        X_test = np.load('../../database/BOSS/'+self.DATASET+'/X_test.npy')   # (4000, 256, 256, 1)
+        y_test = np.load('../../database/BOSS/'+self.DATASET+'/y_test.npy')   # (4000, 2)
+
+        base_name="04-"+self.DATASET
+        name="Model_"+'SWINTBlocks_prueba10'+"_"+base_name
+        _, history  = self.fit(
+            architecture.model, X_train, y_train, X_valid, y_valid, X_test, y_test, 
+            batch_size=self.BATCH_SIZE, epochs=self.EPOCHS, model_name=name, dataset=self.DATASET,
+            custom_layers={
+                'Tanh3':Tanh3, 
+                'SEBlock':SEBlock,
+                'ReshapeLayer':ReshapeLayer,
+                'PatchEmbedding':PatchEmbedding,
+                'PatchMerging':PatchMerging,
+                'SwinTBlock':SwinTBlock
+            }
+        )        
+
+train = Training(epochs=8, batch_size=3, dataset='S-UNIWARD')
+train.train_model()
